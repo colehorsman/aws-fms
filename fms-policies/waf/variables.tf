@@ -15,7 +15,7 @@ variable "exclude_resource_tags" {
   default     = {}
 }
 
-variable "organization_id" {
-  description = "The ID of the AWS Organizations organization"
+variable "fms_admin_account_id" {
+  description = "The AWS account ID to be set as the FMS administrator account"
   type        = string
 } 

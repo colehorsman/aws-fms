@@ -32,26 +32,6 @@ resource "aws_iam_role_policy_attachment" "fms_service_role_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSFirewallManagerServiceRole"
 }
 
-# Enable policy versioning
-resource "aws_fms_policy_versioning" "policy_versioning" {
-  enabled = true
-}
-
-# Reference the WAF logging configuration
-data "terraform_remote_state" "waf_logging" {
-  backend = "s3"
-  config = {
-    bucket = var.terraform_state_bucket
-    key    = "waf-logging/terraform.tfstate"
-    region = var.aws_region
-  }
-}
-
-# Set the WAF log destination ARN
-locals {
-  waf_log_destination_arn = data.terraform_remote_state.waf_logging.outputs.waf_logs_firehose_arn
-}
-
 terraform {
   required_providers {
     aws = {
@@ -60,8 +40,6 @@ terraform {
     }
   }
   required_version = ">= 1.0.0"
-
-  backend "local" {}
 }
 
 # Provider configuration for the primary region
@@ -102,9 +80,9 @@ module "waf_policies" {
     aws.dr      = aws.dr
   }
 
-  environment     = var.environment
-  organization_id = var.organization_id
-  tags           = local.common_tags
+  environment         = var.environment
+  fms_admin_account_id = var.fms_admin_account_id
+  tags               = local.common_tags
 }
 
 # Module for WAF monitoring

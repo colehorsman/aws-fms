@@ -17,29 +17,30 @@ module "waf_rule_groups" {
   }
 
   environment = var.environment
-  tags = var.tags
+  region     = data.aws_region.current.name
+  tags       = var.tags
 }
+
+data "aws_region" "current" {}
 
 resource "aws_fms_policy" "waf_policy" {
   provider = aws.primary
   name                        = "FMS-WAF-Policy"
   description                 = "WAF policy managed by FMS"
-  exclude_resource_tags       = var.exclude_resource_tags
+  exclude_resource_tags       = false
   remediation_enabled         = true
-  delete_unused_fm_resources = true
 
   security_service_policy_data {
-    type = "WAF"
+    type = "WAFV2"
     managed_service_data = jsonencode({
-      type = "WAF"
+      type = "WAFV2"
       defaultAction = {
-        type = "BLOCK"
+        type = "ALLOW"
       }
       overrideCustomerWebACLAssociation = false
-      preProcessRuleGroups = []
-      postProcessRuleGroups = [
+      ruleGroups = [
         {
-          ruleGroupArn = module.waf_rule_groups.rule_group_arn
+          id = module.waf_rule_groups.rule_group_id
           overrideAction = {
             type = "NONE"
           }
@@ -57,10 +58,9 @@ resource "aws_fms_policy" "waf_policy" {
 }
 
 # Create a policy association for the WAF policy
-resource "aws_fms_policy_association" "waf_policy_association" {
+resource "aws_fms_admin_account" "waf_policy_association" {
   provider = aws.primary
-  policy_id = aws_fms_policy.waf_policy.id
-  target_id = var.organization_id
+  account_id = var.fms_admin_account_id
 }
 
 # Enable WAF logging
