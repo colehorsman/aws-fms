@@ -73,13 +73,33 @@ Below is an estimated monthly cost breakdown for running this infrastructure in 
 
 ```
 .
-├── logging/              # Logging configuration
-├── monitoring/           # CloudWatch monitoring
-├── policies/            # FMS policies
-├── security/            # Shield and security configs
-├── plan-demo/           # Simplified configuration for planning
-├── .github/             # GitHub Actions
-└── variables.tf         # Input variables
+├── fms-policies/         # FMS policy configurations
+│   ├── configurations/   # Configuration files for policies
+│   │   ├── dns-firewall/ # DNS Firewall configuration
+│   │   ├── security-groups/ # Security group rules
+│   │   └── waf-rules/   # WAF rule configurations
+│   ├── dns-firewall/     # DNS Firewall module
+│   ├── resource-sets/    # Resource set definitions
+│   ├── shield/           # Shield Advanced configuration
+│   ├── waf/              # WAF policy configuration
+│   └── waf-monitoring/   # WAF monitoring setup
+├── ip-sets/              # IP set definitions
+│   ├── central/          # Centrally managed IP sets
+│   └── team-specific/    # Team-specific IP sets
+│       ├── risk/         # Risk team IP sets
+│       └── app-team-1/   # App team 1 IP sets
+├── modules/              # Reusable Terraform modules
+│   ├── waf-logging/      # WAF logging configuration
+│   ├── waf-monitoring/   # WAF monitoring setup
+│   └── waf-rule-groups/  # WAF rule group definitions
+├── plan-demo/            # Simplified configuration for planning
+├── .github/              # GitHub Actions workflows
+├── main.tf               # Main Terraform configuration
+├── variables.tf          # Input variables
+├── outputs.tf            # Output definitions
+├── terraform.tfvars      # Variable values
+├── CODEOWNERS            # Code ownership configuration
+└── CHANGELOG.md          # Change history
 ```
 
 ## Quick Start
@@ -326,3 +346,129 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## Support
 
 For support, please open an issue in the GitHub repository.
+
+## DNS Firewall Configuration
+
+The DNS firewall configuration is managed through JSON files in the `fms-policies/configurations/dns-firewall` directory:
+
+- `blocked-domains.json`: List of malicious domains to block
+- `allowed-domains.json`: List of trusted domains to allow
+- `audit-domains.json`: List of domains to monitor
+
+### Managing Domain Lists
+
+To update domain lists:
+
+1. Edit the appropriate JSON file:
+   ```bash
+   # Example: Add a domain to block
+   vim fms-policies/configurations/dns-firewall/blocked-domains.json
+   ```
+
+2. Apply changes:
+   ```bash
+   terraform plan
+   terraform apply
+   ```
+
+### DNS Firewall Rules
+
+The configuration creates three types of rules:
+1. Block rules for malicious domains
+2. Allow rules for trusted domains
+3. Audit rules for monitoring suspicious domains
+
+### Example Domain Lists
+
+#### Blocked Domains
+```json
+{
+  "domains": [
+    "malicious1.example.com",
+    "malicious2.example.com",
+    "suspicious1.example.com",
+    "suspicious2.example.com"
+  ]
+}
+```
+
+#### Allowed Domains
+```json
+{
+  "domains": [
+    "trusted1.example.com",
+    "trusted2.example.com"
+  ]
+}
+```
+
+#### Audit Domains
+```json
+{
+  "domains": [
+    "monitor1.example.com",
+    "monitor2.example.com"
+  ]
+}
+```
+
+## IP Sets Organization
+
+IP sets are organized into two main categories:
+
+### Centrally Managed IP Sets
+
+Located in `ip-sets/central/`, these IP sets are managed by the security team and apply to all resources across the organization. Examples include:
+
+- Internal corporate IP ranges
+- Known malicious IP addresses
+- Third-party service IP ranges
+
+### Team-Specific IP Sets
+
+Located in `ip-sets/team-specific/`, these IP sets are managed by individual teams and apply only to their resources. Each team has its own directory:
+
+- `risk/`: IP sets for the Risk team
+- `app-team-1/`: IP sets for App Team 1
+- Additional team directories as needed
+
+### Managing IP Sets
+
+To add or update IP sets:
+
+1. Navigate to the appropriate directory:
+   ```bash
+   # For centrally managed IP sets
+   cd ip-sets/central
+   
+   # For team-specific IP sets
+   cd ip-sets/team-specific/risk
+   ```
+
+2. Create or edit the IP set file:
+   ```bash
+   # Example: Create a new IP set for the Risk team
+   touch mendix.tf
+   ```
+
+3. Define the IP set:
+   ```hcl
+   resource "aws_wafv2_ip_set" "mendix" {
+     name               = "mendix-ip-set"
+     description        = "IP addresses for Mendix application"
+     scope              = "REGIONAL"
+     ip_address_version = "IPV4"
+     addresses          = ["192.168.1.0/24", "10.0.0.0/16"]
+     
+     tags = {
+       Team = "Risk"
+       Application = "Mendix"
+     }
+   }
+   ```
+
+4. Apply changes:
+   ```bash
+   terraform plan
+   terraform apply
+   ```
