@@ -2,6 +2,17 @@
 
 This repository contains the infrastructure as code for managing AWS Firewall Manager (FMS) policies across your organization using Terraform.
 
+## TLDR
+- **Crowdsourced**: Community-driven repository for AWS Firewall Manager best practices and implementations
+- **Centralized Security**: Manages WAF, Shield Advanced, and DNS Firewall policies across multiple AWS accounts
+- **Multi-Region**: Supports primary (us-east-1) and DR (us-west-2) regions with consistent security policies
+- **Team-Based**: Organizes IP sets and policies by team (Risk, Beacon, Life, EDH) with custom rules
+- **Monitoring**: Comprehensive CloudWatch dashboards and alerts for security events
+- **Logging**: Automated WAF logging to S3 via Kinesis Firehose with encryption and retention policies
+- **Security**: Implements Shield Advanced, DDoS protection, and IP reputation lists
+- **CI/CD**: Automated deployment pipeline with GitHub Actions and Slack notifications
+- **Versioning**: Policy versioning system with S3 storage and environment-specific configurations
+
 ## Features
 
 - Centralized WAF rule management
