@@ -1,44 +1,32 @@
 variable "environment" {
-  description = "Environment name (e.g., dev, prod)"
+  description = "Environment name for the Shield resources"
   type        = string
-}
-
-variable "resource_arn" {
-  description = "ARN of the resource to protect with Shield"
-  type        = string
-}
-
-variable "shield_standard_enabled" {
-  description = "Whether to enable Shield Standard protection"
-  type        = bool
-  default     = true
 }
 
 variable "shield_advanced_enabled" {
   description = "Whether to enable Shield Advanced protection"
   type        = bool
-  default     = false
+  default     = true
+}
+
+variable "resource_arn" {
+  description = "ARN of the resource to protect with Shield Advanced"
+  type        = string
 }
 
 variable "health_check_arn" {
-  description = "ARN of the Route53 health check for Shield Advanced"
+  description = "ARN of the Route53 health check to associate with Shield protection"
   type        = string
-  default     = ""
-}
-
-variable "primary_region" {
-  description = "Primary AWS region (e.g., us-east-1)"
-  type        = string
-  default     = "us-east-1"
+  default     = null
 }
 
 variable "sns_topic_arn" {
-  description = "ARN of the SNS topic for alarm notifications"
+  description = "ARN of the SNS topic for Shield DDoS attack notifications"
   type        = string
 }
 
 variable "tags" {
-  description = "Tags to apply to all resources"
+  description = "Tags to apply to all Shield resources"
   type        = map(string)
   default     = {}
 } 

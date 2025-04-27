@@ -1,11 +1,13 @@
 # Enable FMS administrator account
 resource "aws_fms_admin_account" "fms_admin" {
+  provider   = aws.primary
   account_id = var.fms_admin_account_id
 }
 
 # Create an IAM role for FMS to assume in member accounts
 resource "aws_iam_role" "fms_service_role" {
-  name = "AWSServiceRoleForFMS"
+  provider = aws.primary
+  name     = "AWSServiceRoleForFMS"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -19,10 +21,13 @@ resource "aws_iam_role" "fms_service_role" {
       }
     ]
   })
+
+  tags = local.common_tags
 }
 
 # Attach the AWS managed policy for FMS service role
 resource "aws_iam_role_policy_attachment" "fms_service_role_policy" {
+  provider   = aws.primary
   role       = aws_iam_role.fms_service_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSFirewallManagerServiceRole"
 }
@@ -55,47 +60,27 @@ terraform {
     }
   }
   required_version = ">= 1.0.0"
+
+  backend "local" {}
 }
 
-# Provider configuration for the primary region (us-east-1)
+# Provider configuration for the primary region
 provider "aws" {
   region = var.primary_region
   alias  = "primary"
 
   default_tags {
-    tags = {
-      Environment = var.environment
-      Terraform   = "true"
-      Project     = "aws-fms"
-    }
+    tags = local.common_tags
   }
 }
 
-# Provider configuration for the DR region (us-west-2)
+# Provider configuration for the DR region
 provider "aws" {
   region = var.dr_region
   alias  = "dr"
 
   default_tags {
-    tags = {
-      Environment = var.environment
-      Terraform   = "true"
-      Project     = "aws-fms"
-    }
-  }
-}
-
-# Provider configuration for the security lab environment
-provider "aws" {
-  region = var.primary_region
-  alias  = "lab"
-
-  default_tags {
-    tags = {
-      Environment = "lab"
-      Terraform   = "true"
-      Project     = "aws-fms"
-    }
+    tags = local.common_tags
   }
 }
 
@@ -115,7 +100,6 @@ module "waf_policies" {
   providers = {
     aws.primary = aws.primary
     aws.dr      = aws.dr
-    aws.lab     = aws.lab
   }
 
   environment     = var.environment
@@ -132,10 +116,13 @@ module "waf_monitoring" {
     aws.dr      = aws.dr
   }
 
-  environment     = var.environment
-  primary_region  = var.primary_region
-  sns_topic_arn   = var.sns_topic_arn
-  tags            = local.common_tags
+  environment          = var.environment
+  primary_region      = var.primary_region
+  dr_region          = var.dr_region
+  sns_topic_arn      = var.sns_topic_arn
+  cloudfront_enabled = var.cloudfront_enabled
+  web_acl_name       = "FMS-WAF-${var.environment}"
+  tags               = local.common_tags
 }
 
 # Module for Shield configuration
@@ -147,12 +134,12 @@ module "shield" {
     aws.dr      = aws.dr
   }
 
-  environment     = var.environment
-  primary_region  = var.primary_region
-  resource_arn    = var.cloudfront_distribution_arn  # Using CloudFront as the protected resource
-  sns_topic_arn   = var.sns_topic_arn
-  health_check_arn = var.health_check_arn
-  tags            = local.common_tags
+  environment              = var.environment
+  resource_arn            = var.cloudfront_distribution_arn
+  sns_topic_arn           = var.sns_topic_arn
+  health_check_arn        = var.health_check_arn
+  shield_advanced_enabled = var.shield_advanced_enabled
+  tags                    = local.common_tags
 }
 
 # Module for DNS Firewall
@@ -164,8 +151,8 @@ module "dns_firewall" {
     aws.dr      = aws.dr
   }
 
-  environment     = var.environment
-  tags            = local.common_tags
+  environment = var.environment
+  tags        = local.common_tags
 }
 
 # Module for Resource Sets

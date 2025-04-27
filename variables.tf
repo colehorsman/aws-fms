@@ -3,6 +3,12 @@ variable "environment" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region for resource deployment"
+  type        = string
+  default     = "us-east-1"
+}
+
 variable "fms_admin_account_id" {
   description = "AWS account ID of the Firewall Manager administrator account"
   type        = string
@@ -91,11 +97,13 @@ variable "sns_topic_arn" {
 variable "primary_region" {
   description = "Primary AWS region for resource deployment"
   type        = string
+  default     = "us-east-1"
 }
 
 variable "dr_region" {
   description = "Disaster recovery AWS region"
   type        = string
+  default     = "us-west-2"
 }
 
 variable "tags" {
@@ -110,7 +118,31 @@ variable "exclude_resource_tags" {
   default     = ["fms-exclude=true"]
 }
 
-# Local variables for delegated FMS accounts
+variable "blocked_requests_threshold" {
+  description = "Threshold for WAF blocked requests alarm"
+  type        = number
+  default     = 100
+}
+
+variable "shield_advanced_enabled" {
+  description = "Whether to enable Shield Advanced protection"
+  type        = bool
+  default     = false
+}
+
+variable "shield_standard_enabled" {
+  description = "Whether to enable Shield Standard protection"
+  type        = bool
+  default     = true
+}
+
+variable "cloudfront_enabled" {
+  description = "Whether to enable CloudFront monitoring"
+  type        = bool
+  default     = true
+}
+
+# Local variables for common configurations
 locals {
   delegated_fms_accounts = {
     security_lab = {
