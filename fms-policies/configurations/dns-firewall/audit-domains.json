@@ -1,0 +1,8 @@
+{
+  "domains": [
+    "audit1.example.com",
+    "audit2.example.com",
+    "monitoring1.example.com",
+    "monitoring2.example.com"
+  ]
+} 

@@ -1,0 +1,8 @@
+{
+  "domains": [
+    "trusted1.example.com",
+    "trusted2.example.com",
+    "approved1.example.com",
+    "approved2.example.com"
+  ]
+} 

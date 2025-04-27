@@ -1,0 +1,29 @@
+# Global repository owners
+* @security-team
+
+# FMS Policies
+/fms-policies/ @security-team
+/fms-policies/resource-protection.tf @security-team
+/fms-policies/waf.tf @security-team
+
+# Default Policies (Security Team Only)
+/fms-policies/app-teams/*/default-policy.tf @security-team
+
+# App Team Directories
+/fms-policies/app-teams/beacon/ @beacon-team
+/fms-policies/app-teams/edh/ @edh-team
+/fms-policies/app-teams/risk/ @risk-team
+
+# IP Sets
+/ip-sets/central/ @security-team
+/ip-sets/team-specific/ @security-team
+/ip-sets/team-specific/risk/ @risk-team
+
+# WAF Logging
+/waf-logging/ @security-team
+
+# Main configuration files
+/main.tf @security-team
+/variables.tf @security-team
+/outputs.tf @security-team
+/providers.tf @security-team 
