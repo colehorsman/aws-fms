@@ -1,5 +1,15 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [aws.primary, aws.dr]
+    }
+  }
+}
+
 # Resource Sets for FMS Policies
 resource "aws_fms_resource_set" "production_resources" {
+  provider = aws.primary
   name = "production-resources"
   description = "Production resources for FMS policies"
   resource_type_list = ["AWS::CloudFront::Distribution", "AWS::ElasticLoadBalancingV2::LoadBalancer", "AWS::ApiGateway::Stage"]
@@ -14,6 +24,7 @@ resource "aws_fms_resource_set" "production_resources" {
 }
 
 resource "aws_fms_resource_set" "development_resources" {
+  provider = aws.primary
   name = "development-resources"
   description = "Development resources for FMS policies"
   resource_type_list = ["AWS::CloudFront::Distribution", "AWS::ElasticLoadBalancingV2::LoadBalancer", "AWS::ApiGateway::Stage"]
@@ -28,6 +39,7 @@ resource "aws_fms_resource_set" "development_resources" {
 }
 
 resource "aws_fms_resource_set" "restricted_resources" {
+  provider = aws.primary
   name = "restricted-resources"
   description = "Resources with restricted data classification"
   resource_type_list = ["AWS::CloudFront::Distribution", "AWS::ElasticLoadBalancingV2::LoadBalancer", "AWS::ApiGateway::Stage"]
@@ -43,6 +55,7 @@ resource "aws_fms_resource_set" "restricted_resources" {
 
 # FMS Policy with Resource Set
 resource "aws_fms_policy" "resource_set_policy" {
+  provider = aws.primary
   name                  = "fms-resource-set-policy"
   description           = "FMS policy using resource sets"
   exclude_resource_tags = var.exclude_resource_tags
@@ -73,16 +86,19 @@ resource "aws_fms_policy" "resource_set_policy" {
 
 # Policy Association with Resource Set
 resource "aws_fms_policy_association" "production_policy_association" {
+  provider = aws.primary
   policy_id = aws_fms_policy.resource_set_policy.id
   resource_set_id = aws_fms_resource_set.production_resources.id
 }
 
 resource "aws_fms_policy_association" "development_policy_association" {
+  provider = aws.primary
   policy_id = aws_fms_policy.resource_set_policy.id
   resource_set_id = aws_fms_resource_set.development_resources.id
 }
 
 resource "aws_fms_policy_association" "restricted_policy_association" {
+  provider = aws.primary
   policy_id = aws_fms_policy.resource_set_policy.id
   resource_set_id = aws_fms_resource_set.restricted_resources.id
 } 

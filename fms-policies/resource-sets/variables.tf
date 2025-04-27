@@ -1,18 +1,68 @@
 variable "environment" {
-  description = "Environment name (e.g., prod, dev)"
+  description = "Environment name"
   type        = string
 }
 
-variable "exclude_resource_tags" {
-  description = "A list of resource tags to exclude from FMS policies"
-  type        = list(string)
-  default     = ["fms-exclude=true"]
-}
-
 variable "tags" {
-  description = "Default tags for all resources"
+  description = "A map of tags to assign to resources"
   type        = map(string)
   default     = {}
+}
+
+variable "exclude_resource_tags" {
+  description = "A set of resource tags to exclude from the policy"
+  type        = map(string)
+  default     = {}
+}
+
+variable "waf_rule_group_id" {
+  description = "ID of the WAF rule group"
+  type        = string
+}
+
+variable "cloudfront_distribution_arn" {
+  description = "ARN of the CloudFront distribution"
+  type        = string
+}
+
+variable "alb_arn" {
+  description = "ARN of the Application Load Balancer"
+  type        = string
+}
+
+variable "api_gateway_stage_arn" {
+  description = "ARN of the API Gateway stage"
+  type        = string
+}
+
+variable "dev_cloudfront_distribution_arn" {
+  description = "ARN of the development CloudFront distribution"
+  type        = string
+}
+
+variable "dev_alb_arn" {
+  description = "ARN of the development Application Load Balancer"
+  type        = string
+}
+
+variable "dev_api_gateway_stage_arn" {
+  description = "ARN of the development API Gateway stage"
+  type        = string
+}
+
+variable "restricted_cloudfront_distribution_arn" {
+  description = "ARN of the restricted CloudFront distribution"
+  type        = string
+}
+
+variable "restricted_alb_arn" {
+  description = "ARN of the restricted Application Load Balancer"
+  type        = string
+}
+
+variable "restricted_api_gateway_stage_arn" {
+  description = "ARN of the restricted API Gateway stage"
+  type        = string
 }
 
 variable "data_class" {
@@ -31,60 +81,6 @@ variable "name" {
   description = "Name of the resource"
   type        = string
   default     = ""
-}
-
-# Production resources
-variable "cloudfront_distribution_arn" {
-  description = "ARN of the production CloudFront distribution"
-  type        = string
-}
-
-variable "alb_arn" {
-  description = "ARN of the production ALB"
-  type        = string
-}
-
-variable "api_gateway_stage_arn" {
-  description = "ARN of the production API Gateway stage"
-  type        = string
-}
-
-# Development resources
-variable "dev_cloudfront_distribution_arn" {
-  description = "ARN of the development CloudFront distribution"
-  type        = string
-}
-
-variable "dev_alb_arn" {
-  description = "ARN of the development ALB"
-  type        = string
-}
-
-variable "dev_api_gateway_stage_arn" {
-  description = "ARN of the development API Gateway stage"
-  type        = string
-}
-
-# Restricted resources
-variable "restricted_cloudfront_distribution_arn" {
-  description = "ARN of the restricted CloudFront distribution"
-  type        = string
-}
-
-variable "restricted_alb_arn" {
-  description = "ARN of the restricted ALB"
-  type        = string
-}
-
-variable "restricted_api_gateway_stage_arn" {
-  description = "ARN of the restricted API Gateway stage"
-  type        = string
-}
-
-# WAF rule group
-variable "waf_rule_group_id" {
-  description = "ID of the WAF rule group to apply"
-  type        = string
 }
 
 # Local variables for common tags

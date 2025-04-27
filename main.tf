@@ -36,7 +36,7 @@ resource "aws_fms_policy_versioning" "policy_versioning" {
 data "terraform_remote_state" "waf_logging" {
   backend = "s3"
   config = {
-    bucket = "terraform-state-bucket"
+    bucket = var.terraform_state_bucket
     key    = "waf-logging/terraform.tfstate"
     region = var.aws_region
   }
@@ -51,7 +51,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 5.0"
     }
   }
   required_version = ">= 1.0.0"
@@ -62,8 +62,12 @@ provider "aws" {
   region = var.primary_region
   alias  = "primary"
 
-  assume_role {
-    role_arn = "arn:aws:iam::${local.delegated_fms_accounts.security_prod.id}:role/OrganizationAccountAccessRole"
+  default_tags {
+    tags = {
+      Environment = var.environment
+      Terraform   = "true"
+      Project     = "aws-fms"
+    }
   }
 }
 
@@ -72,8 +76,12 @@ provider "aws" {
   region = var.dr_region
   alias  = "dr"
 
-  assume_role {
-    role_arn = "arn:aws:iam::${local.delegated_fms_accounts.security_prod.id}:role/OrganizationAccountAccessRole"
+  default_tags {
+    tags = {
+      Environment = var.environment
+      Terraform   = "true"
+      Project     = "aws-fms"
+    }
   }
 }
 
@@ -82,8 +90,12 @@ provider "aws" {
   region = var.primary_region
   alias  = "lab"
 
-  assume_role {
-    role_arn = "arn:aws:iam::${local.delegated_fms_accounts.security_lab.id}:role/OrganizationAccountAccessRole"
+  default_tags {
+    tags = {
+      Environment = "lab"
+      Terraform   = "true"
+      Project     = "aws-fms"
+    }
   }
 }
 
@@ -98,7 +110,7 @@ locals {
 
 # Module for WAF policies
 module "waf_policies" {
-  source = "./fms-policies"
+  source = "./fms-policies/waf"
 
   providers = {
     aws.primary = aws.primary
@@ -106,12 +118,9 @@ module "waf_policies" {
     aws.lab     = aws.lab
   }
 
-  environment                = var.environment
-  primary_region            = var.primary_region
-  dr_region                 = var.dr_region
-  waf_log_destination_arn   = var.waf_log_destination_arn
-  delegated_fms_accounts    = local.delegated_fms_accounts
-  tags                      = local.common_tags
+  environment     = var.environment
+  organization_id = var.organization_id
+  tags           = local.common_tags
 }
 
 # Module for WAF monitoring
@@ -123,11 +132,10 @@ module "waf_monitoring" {
     aws.dr      = aws.dr
   }
 
-  environment              = var.environment
-  primary_region          = var.primary_region
-  dr_region               = var.dr_region
-  waf_log_destination_arn = var.waf_log_destination_arn
-  tags                    = local.common_tags
+  environment     = var.environment
+  primary_region  = var.primary_region
+  sns_topic_arn   = var.sns_topic_arn
+  tags            = local.common_tags
 }
 
 # Module for Shield configuration
@@ -141,7 +149,9 @@ module "shield" {
 
   environment     = var.environment
   primary_region  = var.primary_region
-  dr_region       = var.dr_region
+  resource_arn    = var.cloudfront_distribution_arn  # Using CloudFront as the protected resource
+  sns_topic_arn   = var.sns_topic_arn
+  health_check_arn = var.health_check_arn
   tags            = local.common_tags
 }
 
@@ -155,7 +165,6 @@ module "dns_firewall" {
   }
 
   environment     = var.environment
-  vpc_id          = var.vpc_id
   tags            = local.common_tags
 }
 

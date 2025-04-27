@@ -1,8 +1,18 @@
 # AWS Shield Configuration
 # This file configures AWS Shield protection for resources
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [aws.primary, aws.dr]
+    }
+  }
+}
+
 # Shield Advanced subscription
 resource "aws_shield_protection" "advanced_protection" {
+  provider     = aws.primary
   count        = var.shield_advanced_enabled ? 1 : 0
   name         = "${var.environment}-shield-advanced"
   resource_arn = var.resource_arn
@@ -12,6 +22,7 @@ resource "aws_shield_protection" "advanced_protection" {
 
 # Shield Advanced subscription
 resource "aws_shield_subscription" "advanced" {
+  provider = aws.primary
   count = var.shield_advanced_enabled ? 1 : 0
 
   auto_renew = true
@@ -21,6 +32,7 @@ resource "aws_shield_subscription" "advanced" {
 
 # Shield Advanced protection group
 resource "aws_shield_protection_group" "advanced_group" {
+  provider = aws.primary
   count = var.shield_advanced_enabled ? 1 : 0
 
   protection_group_id = "${var.environment}-shield-advanced-group"
@@ -32,6 +44,7 @@ resource "aws_shield_protection_group" "advanced_group" {
 
 # Shield Standard protection
 resource "aws_shield_protection" "standard_protection" {
+  provider     = aws.primary
   count        = var.shield_standard_enabled ? 1 : 0
   name         = "${var.environment}-shield-standard"
   resource_arn = var.resource_arn
@@ -41,6 +54,7 @@ resource "aws_shield_protection" "standard_protection" {
 
 # Shield response team notification
 resource "aws_shield_protection_health_check_association" "health_check" {
+  provider = aws.primary
   count = var.shield_advanced_enabled ? 1 : 0
 
   shield_protection_id = aws_shield_protection.advanced_protection[0].id
@@ -49,6 +63,7 @@ resource "aws_shield_protection_health_check_association" "health_check" {
 
 # Shield DRT access role
 resource "aws_shield_drt_access_role_arn_association" "drt_access" {
+  provider = aws.primary
   count = var.shield_advanced_enabled ? 1 : 0
 
   role_arn = aws_iam_role.shield_drt_access[0].arn
@@ -56,6 +71,7 @@ resource "aws_shield_drt_access_role_arn_association" "drt_access" {
 
 # IAM role for Shield DRT access
 resource "aws_iam_role" "shield_drt_access" {
+  provider = aws.primary
   count = var.shield_advanced_enabled ? 1 : 0
 
   name = "${var.environment}-shield-drt-access"
@@ -78,6 +94,7 @@ resource "aws_iam_role" "shield_drt_access" {
 
 # IAM policy for Shield DRT access
 resource "aws_iam_role_policy" "shield_drt_access" {
+  provider = aws.primary
   count = var.shield_advanced_enabled ? 1 : 0
 
   name = "${var.environment}-shield-drt-access-policy"

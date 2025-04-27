@@ -21,20 +21,7 @@ variable "dr_region" {
   default     = "us-west-2"
 }
 
-variable "web_acl_name" {
-  description = "Name of the WAF Web ACL"
+variable "waf_log_destination_arn" {
+  description = "ARN of the WAF log destination"
   type        = string
-  default     = "FMS-WAF"
-}
-
-variable "sns_topic_arn" {
-  description = "ARN of the SNS topic for alerts"
-  type        = string
-  default     = ""
-}
-
-variable "cloudfront_enabled" {
-  description = "Whether to enable CloudFront monitoring"
-  type        = bool
-  default     = true
 } 

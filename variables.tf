@@ -1,11 +1,15 @@
-variable "aws_region" {
-  description = "AWS region to deploy resources"
+variable "environment" {
+  description = "Environment name (e.g., dev, prod)"
   type        = string
-  default     = "us-east-1"
 }
 
-variable "environment" {
-  description = "Environment name (e.g., prod, dev)"
+variable "fms_admin_account_id" {
+  description = "AWS account ID of the Firewall Manager administrator account"
+  type        = string
+}
+
+variable "organization_account_access_role_arn" {
+  description = "ARN of the IAM role used for cross-account access within the organization"
   type        = string
 }
 
@@ -14,100 +18,96 @@ variable "organization_id" {
   type        = string
 }
 
-variable "fms_admin_account_id" {
-  description = "AWS Account ID that will be the FMS administrator account"
+variable "terraform_state_bucket" {
+  description = "S3 bucket name for storing Terraform state"
   type        = string
+}
+
+variable "vpc_id" {
+  description = "ID of the VPC where resources will be deployed"
+  type        = string
+}
+
+variable "waf_log_destination_arn" {
+  description = "ARN of the Kinesis Firehose for WAF logging"
+  type        = string
+}
+
+variable "cloudfront_distribution_arn" {
+  description = "ARN of the production CloudFront distribution"
+  type        = string
+}
+
+variable "alb_arn" {
+  description = "ARN of the production Application Load Balancer"
+  type        = string
+}
+
+variable "api_gateway_stage_arn" {
+  description = "ARN of the production API Gateway stage"
+  type        = string
+}
+
+variable "dev_cloudfront_distribution_arn" {
+  description = "ARN of the development CloudFront distribution"
+  type        = string
+}
+
+variable "dev_alb_arn" {
+  description = "ARN of the development Application Load Balancer"
+  type        = string
+}
+
+variable "dev_api_gateway_stage_arn" {
+  description = "ARN of the development API Gateway stage"
+  type        = string
+}
+
+variable "restricted_cloudfront_distribution_arn" {
+  description = "ARN of the restricted environment CloudFront distribution"
+  type        = string
+}
+
+variable "restricted_alb_arn" {
+  description = "ARN of the restricted environment Application Load Balancer"
+  type        = string
+}
+
+variable "restricted_api_gateway_stage_arn" {
+  description = "ARN of the restricted environment API Gateway stage"
+  type        = string
+}
+
+variable "health_check_arn" {
+  description = "ARN of the Route53 health check for Shield Advanced"
+  type        = string
+}
+
+variable "sns_topic_arn" {
+  description = "ARN of the SNS topic for WAF alerts"
+  type        = string
+}
+
+variable "primary_region" {
+  description = "Primary AWS region for resource deployment"
+  type        = string
+}
+
+variable "dr_region" {
+  description = "Disaster recovery AWS region"
+  type        = string
+}
+
+variable "tags" {
+  description = "Map of tags to apply to all resources"
+  type        = map(string)
+  default     = {}
 }
 
 variable "exclude_resource_tags" {
   description = "A list of resource tags to exclude from FMS policies"
   type        = list(string)
   default     = ["fms-exclude=true"]
-}
-
-variable "primary_region" {
-  description = "Primary AWS region"
-  type        = string
-  default     = "us-east-1"
-}
-
-variable "dr_region" {
-  description = "Disaster recovery AWS region"
-  type        = string
-  default     = "us-west-2"
-}
-
-variable "waf_log_destination_arn" {
-  description = "ARN of the WAF log destination"
-  type        = string
-}
-
-variable "tags" {
-  description = "Default tags for all resources"
-  type        = map(string)
-  default     = {}
-}
-
-variable "vpc_id" {
-  description = "VPC ID for DNS Firewall and security groups"
-  type        = string
-}
-
-# Production resources
-variable "cloudfront_distribution_arn" {
-  description = "ARN of the production CloudFront distribution"
-  type        = string
-  default     = ""
-}
-
-variable "alb_arn" {
-  description = "ARN of the production ALB"
-  type        = string
-  default     = ""
-}
-
-variable "api_gateway_stage_arn" {
-  description = "ARN of the production API Gateway stage"
-  type        = string
-  default     = ""
-}
-
-# Development resources
-variable "dev_cloudfront_distribution_arn" {
-  description = "ARN of the development CloudFront distribution"
-  type        = string
-  default     = ""
-}
-
-variable "dev_alb_arn" {
-  description = "ARN of the development ALB"
-  type        = string
-  default     = ""
-}
-
-variable "dev_api_gateway_stage_arn" {
-  description = "ARN of the development API Gateway stage"
-  type        = string
-  default     = ""
-}
-
-# Restricted resources
-variable "restricted_cloudfront_distribution_arn" {
-  description = "ARN of the restricted CloudFront distribution"
-  type        = string
-  default     = ""
-}
-
-variable "restricted_alb_arn" {
-  description = "ARN of the restricted ALB"
-  type        = string
-  default     = ""
-}
-
-variable "restricted_api_gateway_stage_arn" {
-  description = "ARN of the restricted API Gateway stage"
-  type        = string
-  default     = ""
 }
 
 # Local variables for delegated FMS accounts

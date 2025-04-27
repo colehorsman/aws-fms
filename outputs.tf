@@ -59,4 +59,14 @@ output "waf_logs_bucket_name" {
 output "waf_logs_firehose_arn" {
   description = "The ARN of the Kinesis Firehose delivery stream for WAF logs"
   value       = aws_kinesis_firehose_delivery_stream.waf_logs.arn
+}
+
+output "dns_firewall_rule_group_id" {
+  description = "The ID of the DNS firewall rule group"
+  value       = module.dns_firewall.rule_group_id
+}
+
+output "dns_firewall_rule_group_arn" {
+  description = "The ARN of the DNS firewall rule group"
+  value       = module.dns_firewall.rule_group_arn
 } 

@@ -1,6 +1,15 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      configuration_aliases = [aws.primary, aws.dr]
+    }
+  }
+}
+
 # Create a WAF policy for FMS
 module "waf_rule_groups" {
-  source = "../modules/waf_rule_groups"
+  source = "../../modules/waf_rule_groups"
 
   providers = {
     aws.primary = aws.primary
@@ -12,6 +21,7 @@ module "waf_rule_groups" {
 }
 
 resource "aws_fms_policy" "waf_policy" {
+  provider = aws.primary
   name                        = "FMS-WAF-Policy"
   description                 = "WAF policy managed by FMS"
   exclude_resource_tags       = var.exclude_resource_tags
@@ -48,13 +58,14 @@ resource "aws_fms_policy" "waf_policy" {
 
 # Create a policy association for the WAF policy
 resource "aws_fms_policy_association" "waf_policy_association" {
+  provider = aws.primary
   policy_id = aws_fms_policy.waf_policy.id
   target_id = var.organization_id
 }
 
 # Enable WAF logging
 module "waf_logging" {
-  source = "../modules/waf_logging"
+  source = "../../modules/waf_logging"
 
   providers = {
     aws.primary = aws.primary
@@ -66,13 +77,14 @@ module "waf_logging" {
 }
 
 resource "aws_wafv2_web_acl_logging_configuration" "waf_logging" {
+  provider = aws.primary
   log_destination_configs = [module.waf_logging.waf_logs_firehose_arn]
   resource_arn           = aws_fms_policy.waf_policy.arn
 }
 
 # Enable WAF monitoring
 module "waf_monitoring" {
-  source = "../modules/waf_monitoring"
+  source = "../../modules/waf_monitoring"
 
   providers = {
     aws.primary = aws.primary
@@ -81,4 +93,12 @@ module "waf_monitoring" {
 
   environment = var.environment
   tags = var.tags
+}
+
+output "waf_rule_group_id" {
+  value = module.waf_rule_groups.rule_group_id
+}
+
+output "waf_rule_group_arn" {
+  value = module.waf_rule_groups.rule_group_arn
 } 

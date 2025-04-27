@@ -10,14 +10,15 @@
 /fms-policies/app-teams/*/default-policy.tf @security-team
 
 # App Team Directories
-/fms-policies/app-teams/beacon/ @beacon-team
-/fms-policies/app-teams/edh/ @edh-team
-/fms-policies/app-teams/risk/ @risk-team
+/fms-policies/app-teams/app-team-1/ @app-team-1
+/fms-policies/app-teams/app-team-2/ @app-team-2
+/fms-policies/app-teams/app-team-3/ @app-team-3
+/fms-policies/app-teams/app-team-4/ @app-team-4
 
 # IP Sets
 /ip-sets/central/ @security-team
 /ip-sets/team-specific/ @security-team
-/ip-sets/team-specific/risk/ @risk-team
+/ip-sets/team-specific/app-team-1/ @app-team-1
 
 # WAF Logging
 /waf-logging/ @security-team
