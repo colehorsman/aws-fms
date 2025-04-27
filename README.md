@@ -43,6 +43,74 @@ graph TD
     O[DR Region] -->|Replicates| B
 ```
 
+## Cost Estimation
+
+Below is an estimated monthly cost breakdown for running this infrastructure in a production environment. Costs are approximate and may vary based on usage, region, and specific requirements.
+
+### Monthly Cost Breakdown
+
+| Service | Description | Monthly Cost (USD) |
+|---------|-------------|-------------------|
+| **FMS (Firewall Manager)** | Base cost for FMS administration | $100.00 |
+| **WAF** | Web Application Firewall rules and requests | $300.00 |
+| **Shield Advanced** | DDoS protection per protected resource | $3,000.00 |
+| **DNS Firewall** | DNS query filtering and logging | $150.00 |
+| **Kinesis Firehose** | Log delivery and processing | $200.00 |
+| **S3 Storage** | Log storage and policy versioning | $50.00 |
+| **CloudWatch** | Metrics, logs, and alarms | $100.00 |
+| **SNS Topics** | Alert notifications | $10.00 |
+| **Route53** | DNS resolution and health checks | $50.00 |
+| **IAM** | Identity and access management | $0.00 |
+| **Total Monthly** | | **$3,960.00** |
+
+### Annual Cost Breakdown
+
+| Period | Cost (USD) |
+|--------|------------|
+| Monthly Average | $3,960.00 |
+| Annual Total | $47,520.00 |
+
+### Cost Optimization Tips
+
+1. **Development Environment**
+   - Use Shield Standard instead of Advanced ($0/month)
+   - Reduce WAF rule complexity
+   - Estimated monthly cost: $500-1,000
+
+2. **Staging Environment**
+   - Use Shield Advanced with fewer protected resources
+   - Moderate WAF rule complexity
+   - Estimated monthly cost: $1,500-2,000
+
+3. **Production Environment**
+   - Full Shield Advanced protection
+   - Complete WAF rule set
+   - Estimated monthly cost: $3,500-4,500
+
+### Cost Factors
+
+- **Region**: Costs may vary by AWS region
+- **Traffic Volume**: WAF and Shield costs scale with traffic
+- **Rule Complexity**: More complex WAF rules increase processing costs
+- **Log Retention**: Longer retention periods increase S3 storage costs
+- **Alert Frequency**: More frequent alerts increase SNS costs
+
+### Cost Control Measures
+
+1. **Resource Tagging**
+   - Tag all resources for cost allocation
+   - Use AWS Cost Explorer for detailed analysis
+
+2. **Log Management**
+   - Implement S3 lifecycle policies
+   - Use log compression
+   - Set appropriate retention periods
+
+3. **Monitoring**
+   - Set up cost anomaly detection
+   - Create budget alerts
+   - Regular cost optimization reviews
+
 ## Prerequisites
 
 - AWS Organizations enabled
