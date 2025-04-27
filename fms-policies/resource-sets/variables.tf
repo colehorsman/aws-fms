@@ -4,7 +4,7 @@ variable "environment" {
 }
 
 variable "tags" {
-  description = "A map of tags to assign to resources"
+  description = "Tags to apply to all resources"
   type        = map(string)
   default     = {}
 }
@@ -16,32 +16,34 @@ variable "exclude_resource_tags" {
 }
 
 variable "waf_rule_group_id" {
-  description = "ID of the WAF rule group"
+  description = "ID of the WAF rule group to use"
   type        = string
 }
 
+# Production environment ARNs
 variable "cloudfront_distribution_arn" {
-  description = "ARN of the CloudFront distribution"
+  description = "ARN of the production CloudFront distribution"
   type        = string
 }
 
 variable "alb_arn" {
-  description = "ARN of the Application Load Balancer"
+  description = "ARN of the production ALB"
   type        = string
 }
 
 variable "api_gateway_stage_arn" {
-  description = "ARN of the API Gateway stage"
+  description = "ARN of the production API Gateway stage"
   type        = string
 }
 
+# Development environment ARNs
 variable "dev_cloudfront_distribution_arn" {
   description = "ARN of the development CloudFront distribution"
   type        = string
 }
 
 variable "dev_alb_arn" {
-  description = "ARN of the development Application Load Balancer"
+  description = "ARN of the development ALB"
   type        = string
 }
 
@@ -50,13 +52,14 @@ variable "dev_api_gateway_stage_arn" {
   type        = string
 }
 
+# Restricted environment ARNs
 variable "restricted_cloudfront_distribution_arn" {
   description = "ARN of the restricted CloudFront distribution"
   type        = string
 }
 
 variable "restricted_alb_arn" {
-  description = "ARN of the restricted Application Load Balancer"
+  description = "ARN of the restricted ALB"
   type        = string
 }
 

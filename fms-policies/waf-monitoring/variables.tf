@@ -1,40 +1,42 @@
 variable "environment" {
-  description = "Environment name"
+  description = "Environment name for WAF monitoring resources"
   type        = string
-}
-
-variable "tags" {
-  description = "A map of tags to assign to resources"
-  type        = map(string)
-  default     = {}
 }
 
 variable "primary_region" {
-  description = "AWS region for primary deployment"
+  description = "Primary AWS region for resource deployment"
   type        = string
-  default     = "us-east-1"
 }
 
 variable "dr_region" {
-  description = "AWS region for DR deployment"
+  description = "Disaster recovery AWS region"
   type        = string
-  default     = "us-west-2"
-}
-
-variable "web_acl_name" {
-  description = "Name of the WAF Web ACL"
-  type        = string
-  default     = "FMS-WAF"
 }
 
 variable "sns_topic_arn" {
-  description = "ARN of the SNS topic for alerts"
+  description = "ARN of the SNS topic for WAF alerts"
   type        = string
-  default     = ""
 }
 
 variable "cloudfront_enabled" {
   description = "Whether to enable CloudFront monitoring"
   type        = bool
   default     = true
+}
+
+variable "web_acl_name" {
+  description = "Name of the WAF ACL to monitor"
+  type        = string
+}
+
+variable "blocked_requests_threshold" {
+  description = "Threshold for WAF blocked requests alarm"
+  type        = number
+  default     = 100
+}
+
+variable "tags" {
+  description = "Tags to apply to all WAF monitoring resources"
+  type        = map(string)
+  default     = {}
 } 

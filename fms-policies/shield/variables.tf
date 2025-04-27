@@ -9,6 +9,12 @@ variable "shield_advanced_enabled" {
   default     = true
 }
 
+variable "shield_standard_enabled" {
+  description = "Whether to enable Shield Standard protection"
+  type        = bool
+  default     = true
+}
+
 variable "resource_arn" {
   description = "ARN of the resource to protect with Shield Advanced"
   type        = string
@@ -23,6 +29,12 @@ variable "health_check_arn" {
 variable "sns_topic_arn" {
   description = "ARN of the SNS topic for Shield DDoS attack notifications"
   type        = string
+}
+
+variable "primary_region" {
+  description = "Primary AWS region for resource deployment"
+  type        = string
+  default     = "us-east-1"
 }
 
 variable "tags" {

@@ -68,6 +68,7 @@ Below is an estimated monthly cost breakdown for running this infrastructure in 
 - FMS administrator account designated
 - Terraform >= 1.0
 - AWS CLI configured
+- FMS admin account ID (for policy configuration)
 
 ## Directory Structure
 
@@ -116,8 +117,10 @@ Below is an estimated monthly cost breakdown for running this infrastructure in 
 
 3. Create a terraform.tfvars file:
    ```hcl
-   name_prefix = "your-prefix"
    environment = "dev"
+   fms_admin_account_id = "YOUR_AWS_ACCOUNT_ID"  # Replace with your FMS admin account ID
+   primary_region = "us-east-1"
+   dr_region = "us-west-2"
    ```
 
 4. Plan and apply:
@@ -242,13 +245,13 @@ Common issues and solutions:
    - AWSFirewallManagerServiceRole
    - AWSFirewallManagerAdminAccess
 
-3. **VPC Not Found**
+3. **FMS Admin Account ID Error**
    ```bash
-   Error: InvalidVpcID.NotFound: The vpc ID 'vpc-xxx' does not exist
+   Error: InvalidParameterException: Invalid FMS admin account ID
    ```
-   Solution: Update terraform.tfvars with a valid VPC ID from your account:
+   Solution: Verify the FMS admin account ID in terraform.tfvars:
    ```bash
-   aws ec2 describe-vpcs --query 'Vpcs[*].[VpcId,Tags[?Key==`Name`].Value|[0]]' --output table
+   aws organizations list-accounts --query 'Accounts[?contains(Name, `FMS`)].Id' --output text
    ```
 
 4. **Region Mismatch**

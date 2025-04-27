@@ -28,7 +28,7 @@ output "shield_dashboard_arn" {
   value       = try(aws_cloudwatch_dashboard.shield_dashboard[0].dashboard_arn, null)
 }
 
-output "shield_subscription_arn" {
-  description = "The ARN of the Shield Advanced subscription"
-  value       = try(aws_shield_subscription.advanced[0].arn, null)
+output "shield_subscription_id" {
+  description = "The ID of the Shield Advanced subscription"
+  value       = try(aws_shield_subscription.advanced[0].id, null)
 } 

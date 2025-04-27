@@ -8,28 +8,89 @@ terraform {
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "waf_logs" {
-  provider = aws.primary
   name        = "aws-waf-logs-${var.environment}"
-  destination = "s3"
+  destination = "extended_s3"
 
-  s3_configuration {
+  server_side_encryption {
+    enabled = true
+  }
+
+  extended_s3_configuration {
     role_arn   = aws_iam_role.firehose_role.arn
     bucket_arn = aws_s3_bucket.waf_logs.arn
-    prefix     = "waf-logs/"
+    prefix     = "waf-logs/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/"
+    
+    buffering_size     = 128
+    buffering_interval = 300
+    compression_format = "GZIP"
+
+    cloudwatch_logging_options {
+      enabled         = true
+      log_group_name  = aws_cloudwatch_log_group.firehose.name
+      log_stream_name = "S3Delivery"
+    }
   }
 
   tags = var.tags
 }
 
 resource "aws_s3_bucket" "waf_logs" {
-  provider = aws.primary
   bucket = "aws-waf-logs-${var.environment}-${data.aws_caller_identity.current.account_id}"
-  tags   = var.tags
+
+  tags = var.tags
 }
 
-data "aws_caller_identity" "current" {
-  provider = aws.primary
+resource "aws_s3_bucket_versioning" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+  versioning_configuration {
+    status = "Enabled"
+  }
 }
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "waf_logs" {
+  bucket = aws_s3_bucket.waf_logs.id
+
+  rule {
+    id     = "cleanup_old_logs"
+    status = "Enabled"
+
+    filter {
+      prefix = "waf-logs/"
+    }
+
+    transition {
+      days          = 30
+      storage_class = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 365
+    }
+  }
+}
+
+resource "aws_cloudwatch_log_group" "firehose" {
+  name              = "/aws/firehose/waf-logs-${var.environment}"
+  retention_in_days = 14
+  tags              = var.tags
+}
+
+data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "firehose_role" {
   provider = aws.primary

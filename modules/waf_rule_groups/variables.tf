@@ -1,10 +1,15 @@
 variable "environment" {
-  description = "Environment name"
+  description = "Environment name for WAF rule groups"
+  type        = string
+}
+
+variable "region" {
+  description = "AWS region for WAF rule groups"
   type        = string
 }
 
 variable "tags" {
-  description = "A map of tags to assign to resources"
+  description = "Tags to apply to all WAF rule group resources"
   type        = map(string)
   default     = {}
 } 

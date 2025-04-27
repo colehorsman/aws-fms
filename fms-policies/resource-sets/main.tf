@@ -7,98 +7,68 @@ terraform {
   }
 }
 
-# Resource Sets for FMS Policies
-resource "aws_fms_resource_set" "production_resources" {
-  provider = aws.primary
-  name = "production-resources"
-  description = "Production resources for FMS policies"
-  resource_type_list = ["AWS::CloudFront::Distribution", "AWS::ElasticLoadBalancingV2::LoadBalancer", "AWS::ApiGateway::Stage"]
-  
-  resources = [
-    var.cloudfront_distribution_arn,
-    var.alb_arn,
-    var.api_gateway_stage_arn
-  ]
-
-  tags = local.common_tags
-}
-
-resource "aws_fms_resource_set" "development_resources" {
-  provider = aws.primary
-  name = "development-resources"
-  description = "Development resources for FMS policies"
-  resource_type_list = ["AWS::CloudFront::Distribution", "AWS::ElasticLoadBalancingV2::LoadBalancer", "AWS::ApiGateway::Stage"]
-  
-  resources = [
-    var.dev_cloudfront_distribution_arn,
-    var.dev_alb_arn,
-    var.dev_api_gateway_stage_arn
-  ]
-
-  tags = local.common_tags
-}
-
-resource "aws_fms_resource_set" "restricted_resources" {
-  provider = aws.primary
-  name = "restricted-resources"
-  description = "Resources with restricted data classification"
-  resource_type_list = ["AWS::CloudFront::Distribution", "AWS::ElasticLoadBalancingV2::LoadBalancer", "AWS::ApiGateway::Stage"]
-  
-  resources = [
-    var.restricted_cloudfront_distribution_arn,
-    var.restricted_alb_arn,
-    var.restricted_api_gateway_stage_arn
-  ]
-
-  tags = local.common_tags
-}
-
-# FMS Policy with Resource Set
 resource "aws_fms_policy" "resource_set_policy" {
-  provider = aws.primary
-  name                  = "fms-resource-set-policy"
-  description           = "FMS policy using resource sets"
-  exclude_resource_tags = var.exclude_resource_tags
+  name                  = "resource-set-policy-${var.environment}"
+  exclude_resource_tags = false
   remediation_enabled   = true
-  resource_type         = "AWS::CloudFront::Distribution"
-  security_service_policy_data = jsonencode({
-    Type = "WAF"
-    ManagedServiceData = jsonencode({
-      type = "WAF"
-      preProcessRuleGroups = [
+  resource_type        = "AWS::ElasticLoadBalancingV2::LoadBalancer"
+
+  security_service_policy_data {
+    type = "WAFV2"
+
+    managed_service_data = jsonencode({
+      type = "WAFV2"
+      ruleGroups = [
         {
-          ruleGroupId = var.waf_rule_group_id
-          priority    = 1
+          id = var.waf_rule_group_id
           overrideAction = {
-            type = "NONE"
+            type = "COUNT"
           }
         }
       ]
-      postProcessRuleGroups = []
       defaultAction = {
-        type = "BLOCK"
+        type = "ALLOW"
       }
+      overrideCustomerWebACLAssociation = false
     })
-  })
+  }
 
-  tags = local.common_tags
+  resource_tags = {
+    Environment = var.environment
+  }
+
+  tags = var.tags
 }
 
-# Policy Association with Resource Set
-resource "aws_fms_policy_association" "production_policy_association" {
-  provider = aws.primary
-  policy_id = aws_fms_policy.resource_set_policy.id
-  resource_set_id = aws_fms_resource_set.production_resources.id
+resource "aws_wafv2_web_acl_association" "production" {
+  for_each = toset([
+    var.cloudfront_distribution_arn,
+    var.alb_arn,
+    var.api_gateway_stage_arn
+  ])
+
+  resource_arn = each.value
+  web_acl_arn  = aws_fms_policy.resource_set_policy.id
 }
 
-resource "aws_fms_policy_association" "development_policy_association" {
-  provider = aws.primary
-  policy_id = aws_fms_policy.resource_set_policy.id
-  resource_set_id = aws_fms_resource_set.development_resources.id
+resource "aws_wafv2_web_acl_association" "development" {
+  for_each = toset([
+    var.dev_cloudfront_distribution_arn,
+    var.dev_alb_arn,
+    var.dev_api_gateway_stage_arn
+  ])
+
+  resource_arn = each.value
+  web_acl_arn  = aws_fms_policy.resource_set_policy.id
 }
 
-resource "aws_fms_policy_association" "restricted_policy_association" {
-  provider = aws.primary
-  policy_id = aws_fms_policy.resource_set_policy.id
-  resource_set_id = aws_fms_resource_set.restricted_resources.id
+resource "aws_wafv2_web_acl_association" "restricted" {
+  for_each = toset([
+    var.restricted_cloudfront_distribution_arn,
+    var.restricted_alb_arn,
+    var.restricted_api_gateway_stage_arn
+  ])
+
+  resource_arn = each.value
+  web_acl_arn  = aws_fms_policy.resource_set_policy.id
 } 
