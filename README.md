@@ -59,6 +59,7 @@ graph TD
 ├── monitoring/           # CloudWatch monitoring
 ├── policies/            # FMS policies
 ├── security/            # Shield and security configs
+├── plan-demo/           # Simplified configuration for planning
 ├── .github/             # GitHub Actions
 └── variables.tf         # Input variables
 ```
@@ -86,6 +87,39 @@ graph TD
    terraform plan
    terraform apply
    ```
+
+## Planning and Testing
+
+The `plan-demo` directory contains a simplified version of the FMS configuration for planning and testing purposes. This directory includes:
+
+- Basic FMS admin account setup
+- Sample WAF policies for each team
+- DNS Firewall configuration
+- Security Group policies
+- Example resources for testing
+
+To use the plan-demo configuration:
+
+1. Navigate to the plan-demo directory:
+   ```bash
+   cd plan-demo
+   ```
+
+2. Initialize Terraform:
+   ```bash
+   terraform init
+   ```
+
+3. Run a plan to see the proposed changes:
+   ```bash
+   terraform plan
+   ```
+
+This simplified configuration helps in:
+- Testing policy changes before applying to production
+- Understanding the basic FMS setup
+- Quick prototyping of new policies
+- Training and documentation purposes
 
 ## Policy Management
 
