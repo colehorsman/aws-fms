@@ -98,22 +98,137 @@ The `plan-demo` directory contains a simplified version of the FMS configuration
 - Security Group policies
 - Example resources for testing
 
-To use the plan-demo configuration:
+### Step-by-Step Demo Environment Setup
 
-1. Navigate to the plan-demo directory:
+#### Prerequisites
+1. Install required tools:
    ```bash
-   cd plan-demo
+   # Install AWS CLI
+   brew install awscli  # For macOS
+   # OR
+   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"  # For Linux
+   unzip awscliv2.zip
+   sudo ./aws/install
+
+   # Install Terraform
+   brew install terraform  # For macOS
+   # OR
+   curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+   sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+   sudo apt-get update && sudo apt-get install terraform  # For Linux
    ```
 
-2. Initialize Terraform:
+2. Configure AWS credentials:
+   ```bash
+   aws configure
+   # Enter your:
+   # - AWS Access Key ID
+   # - AWS Secret Access Key
+   # - Default region (e.g., us-east-1)
+   # - Default output format (json)
+   ```
+
+#### Deployment Steps
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-org/aws-fms.git
+   cd aws-fms
+   ```
+
+2. Create a variables file:
+   ```bash
+   cd plan-demo
+   cat > terraform.tfvars << EOF
+   aws_region = "us-east-1"
+   environment = "dev"
+   fms_admin_account_id = "YOUR_AWS_ACCOUNT_ID"  # Replace with your AWS account ID
+   vpc_id = "vpc-xxxxxxxx"  # Replace with your VPC ID
+   EOF
+   ```
+
+3. Initialize Terraform:
    ```bash
    terraform init
    ```
 
-3. Run a plan to see the proposed changes:
+4. Review the plan:
    ```bash
    terraform plan
    ```
+
+5. Apply the configuration:
+   ```bash
+   terraform apply
+   # Type 'yes' when prompted
+   ```
+
+6. Verify the deployment:
+   ```bash
+   # List FMS policies
+   aws fms list-policies
+
+   # List WAF rule groups
+   aws wafv2 list-rule-groups --scope REGIONAL
+
+   # Check DNS Firewall rule groups
+   aws route53resolver list-firewall-rule-groups
+   ```
+
+#### Cleanup
+
+To remove all created resources:
+```bash
+terraform destroy
+# Type 'yes' when prompted
+```
+
+#### Troubleshooting
+
+Common issues and solutions:
+
+1. **AWS Credentials Error**
+   ```bash
+   Error: error getting AWS credentials
+   ```
+   Solution: Verify AWS credentials are properly configured:
+   ```bash
+   aws sts get-caller-identity
+   ```
+
+2. **Permission Errors**
+   ```bash
+   Error: AccessDeniedException: User is not authorized to perform fms:PutPolicy
+   ```
+   Solution: Ensure your AWS user has the necessary FMS permissions:
+   - AWSFirewallManagerServiceRole
+   - AWSFirewallManagerAdminAccess
+
+3. **VPC Not Found**
+   ```bash
+   Error: InvalidVpcID.NotFound: The vpc ID 'vpc-xxx' does not exist
+   ```
+   Solution: Update terraform.tfvars with a valid VPC ID from your account:
+   ```bash
+   aws ec2 describe-vpcs --query 'Vpcs[*].[VpcId,Tags[?Key==`Name`].Value|[0]]' --output table
+   ```
+
+4. **Region Mismatch**
+   ```bash
+   Error: InvalidParameterException: Invalid region
+   ```
+   Solution: Ensure the region in terraform.tfvars matches your AWS CLI configuration:
+   ```bash
+   aws configure get region
+   ```
+
+#### Next Steps
+
+After successful deployment:
+1. Review the created FMS policies in the AWS Console
+2. Test the WAF rules with sample requests
+3. Monitor CloudWatch metrics for policy effectiveness
+4. Experiment with policy modifications in the plan-demo directory
 
 This simplified configuration helps in:
 - Testing policy changes before applying to production
